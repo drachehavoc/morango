@@ -23,15 +23,11 @@ export class EntityMetadata {
 
     addColumnMeta(
         fieldName: string,
-        parameters: IFieldControllerConfig,
-        constructor: typeof FieldController
+        FieldControllerConstructor: typeof FieldController
     ) {
-        if (parameters.key === true)
+        if (FieldControllerConstructor.config.key === true)
             this.keys.push(fieldName)
 
-        this.columns[fieldName] = {
-            parameters,
-            constructor
-        }
+        this.columns[fieldName] = FieldControllerConstructor
     }
 }

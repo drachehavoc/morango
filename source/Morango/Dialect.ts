@@ -7,9 +7,9 @@ export class Dialect {
             let tableName = decamelize(Entity.BaseClass.name)
             let tableEntries: string[] = []
 
-            Object.entries(Entity.columns).forEach(([columnName, columnMeta]) => {
+            Object.entries(Entity.columns).forEach(([columnName, FieldControllerConstructor]) => {
                 columnName = decamelize(columnName)
-                let cnf = columnMeta.parameters
+                let cnf = FieldControllerConstructor.config
                 let nil = cnf.nil === true ? '' : ' NOT NULL'
                 let type = cnf.type ? cnf.type.toUpperCase() : ' VARCHAR'
                 let size = cnf.size ? `(${cnf.size})` : ''

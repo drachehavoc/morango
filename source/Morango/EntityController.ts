@@ -30,8 +30,8 @@ export class EntityController {
      * 
      */
     private instantiateFieldControllers() {
-        Object.entries(this.metadata.columns).forEach(([columnName, columnMeta]) => {
-            let fc = new columnMeta.constructor(columnMeta.parameters)
+        Object.entries(this.metadata.columns).forEach(([columnName, FieldControllerConstructor]) => {
+            let fc = new FieldControllerConstructor()
             this.fieldControllers[columnName] = fc
             fc.set(this.entity[columnName])
             Object.defineProperty(this.entity, columnName, fc)

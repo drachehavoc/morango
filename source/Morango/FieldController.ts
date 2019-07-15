@@ -8,11 +8,43 @@ import { IFieldControllerConfig } from "./d";
  * 
  */
 export class FieldController {
+    //
+    // STATIC
+    //
+
+    protected static configDefaults: Partial<IFieldControllerConfig> = {
+        key: false,
+        nil: true,
+        size: 255,
+    }
+
+    protected static configConstants: Partial<IFieldControllerConfig> = {
+        type: 'VARCHAR',
+        serial: false,
+    }
+
+    protected static _config: IFieldControllerConfig
+
+    static get config(): IFieldControllerConfig {
+        return this._config || (this._config = Object.freeze({
+            ... this.configDefaults,
+            ... this.configConstants
+        }))
+    }
+
+    static custom(config: IFieldControllerConfig) {
+        return class extends this {
+            protected static configDefaults = config
+        }
+    }
+
+    //
+    // INSTANCE
+    //
+
     protected rawValue: any = null
 
-    constructor(
-        readonly config: IFieldControllerConfig
-    ) { }
+    readonly config: IFieldControllerConfig = (<typeof FieldController>this.constructor).config
 
     get() {
         return this.rawValue

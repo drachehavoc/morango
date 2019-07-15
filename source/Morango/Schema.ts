@@ -16,14 +16,13 @@ export abstract class Schema {
     }
 
     static field(
-        fcConstructor: typeof FieldController,
-        fcParameters: IFieldControllerConfig = {}
+        fcConstructor: typeof FieldController
     ): PropertyDecorator {
         return (c, k) => {
             let Clazz = c.constructor
             let fieldName = k as string
             let metadata = EntityMetadata.get(Clazz)
-            metadata.addColumnMeta(fieldName, fcParameters, fcConstructor)
+            metadata.addColumnMeta(fieldName, fcConstructor)
         }
     }
 
