@@ -25,14 +25,6 @@ export declare interface IFieldControllerConfig {
 /**
  * 
  */
-export declare interface IFieldControllerConstructorMetadata {
-    parameters: IFieldControllerConfig,
-    constructor: typeof FieldController
-}
-
-/**
- * 
- */
 export declare interface FieldControllesMetadataList {
-    [fieldName: string]: IFieldControllerConstructorMetadata
+    [fieldName: string]: typeof FieldController
 }
