@@ -9,4 +9,4 @@
 ## Fase II - Cria FieldControllers e adiciona getters e setter para os mesmos
 - [x] É preciso estender a classe Abstrata Schema e definir um objeto do tipo Dialect para o attributo abstrato dialect
 - [x] É preciso instanciar um objeto desta classe
-- [ ] Ao executar o método Schema.getEntityClass, informando uma classe base como entidade, é retornada uma nova classe viculada ao objeto Schema criado que estende a classe base, porém com os FieldControllers já instanciados e já viculados aos campos da classe através de getters e setters
+- [x] Ao executar o método Schema.getEntityClass, informando uma classe base como entidade, é retornada uma nova classe viculada ao objeto Schema criado que estende a classe base, porém com os FieldControllers já instanciados e já viculados aos campos da classe através de getters e setters
