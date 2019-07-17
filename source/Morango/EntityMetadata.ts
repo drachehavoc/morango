@@ -1,5 +1,5 @@
 import { FieldControllesMetadataList, IFieldControllerConfig } from "./d";
-import { FieldController } from "./FieldController";
+import { FieldController } from "./FieldControllers/FieldController";
 
 /**
  * Responsavel por armazenar metadados para instanciação futura de novas entidades
@@ -14,7 +14,7 @@ export class EntityMetadata {
             return BaseClass.__entity_metadata__
         let value = new EntityMetadata(BaseClass)
         Object.defineProperty(BaseClass, `__entity_metadata__`, { value })
-        return value;
+        return Object.freeze(value);
     }
 
     private constructor(

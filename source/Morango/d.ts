@@ -1,4 +1,4 @@
-import { FieldController } from "./FieldController";
+import { FieldController } from "./FieldControllers/FieldController";
 import { EntityController } from "./EntityController";
 
 /**

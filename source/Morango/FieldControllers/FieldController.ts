@@ -1,4 +1,5 @@
-import { IFieldControllerConfig } from "./d";
+import { IFieldControllerConfig } from "../d";
+import { EntityController } from "../EntityController";
 
 /**
  * Responsavel por gerenciar cada campo setada com Schema.field, dentre suas
@@ -16,25 +17,36 @@ export class FieldController {
         key: false,
         nil: true,
         size: 255,
+        type: 'VARCHAR',
+        serial: false
     }
 
     protected static configConstants: Partial<IFieldControllerConfig> = {
-        type: 'VARCHAR',
-        serial: false,
     }
 
     protected static _config: IFieldControllerConfig
 
     static get config(): IFieldControllerConfig {
-        return this._config || (this._config = Object.freeze({
-            ... this.configDefaults,
-            ... this.configConstants
-        }))
+        if (this.hasOwnProperty('_config'))
+            return this._config
+        
+        return Object.defineProperty(this, '_config', {
+            writable: false,
+            value: Object.freeze({
+                ... this.configDefaults,
+                ... this.configConstants
+            })
+        })
     }
 
     static custom(config: IFieldControllerConfig) {
+        let customName = `Custom${this.name}`
         return class extends this {
             protected static configDefaults = config
+            // @ts-ignore
+            static get name() {
+                return customName
+            }
         }
     }
 
@@ -42,9 +54,16 @@ export class FieldController {
     // INSTANCE
     //
 
-    protected rawValue: any = null
+    constructor(
+        protected fieldName: string,
+        protected entityController: EntityController
+    ) {
 
-    readonly config: IFieldControllerConfig = (<typeof FieldController>this.constructor).config
+    }
+
+    protected config: IFieldControllerConfig = (<typeof FieldController>this.constructor).config
+    protected BaseClass = this.entityController.BaseClass
+    protected rawValue: any = null
 
     get() {
         return this.rawValue

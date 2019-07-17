@@ -1,6 +1,6 @@
 import { Schema } from "./Schema";
 import { EntityMetadata } from "./EntityMetadata";
-import { FieldController } from "./FieldController";
+import { FieldController } from "./FieldControllers/FieldController";
 
 /**
  * Responsavel por manipular entidades instanciadas, a fim de permitir salvar,
@@ -9,7 +9,7 @@ import { FieldController } from "./FieldController";
  * 
  */
 export class EntityController {
-    protected metadata: EntityMetadata = EntityMetadata.get(this.BaseClass)
+    readonly metadata: EntityMetadata = EntityMetadata.get(this.BaseClass)
     protected fieldControllers: { [fieldName: string]: FieldController } = {}
 
     /**
@@ -19,9 +19,9 @@ export class EntityController {
      * @param entity 
      */
     constructor(
-        protected schema: Schema,
-        protected BaseClass: new (...args: any) => any,
-        protected entity: any
+        readonly schema: Schema,
+        readonly BaseClass: new (...args: any) => any,
+        readonly entity: any
     ) {
         this.instantiateFieldControllers()
     }
@@ -31,7 +31,7 @@ export class EntityController {
      */
     private instantiateFieldControllers() {
         Object.entries(this.metadata.columns).forEach(([columnName, FieldControllerConstructor]) => {
-            let fc = new FieldControllerConstructor()
+            let fc = new FieldControllerConstructor(columnName, this)
             this.fieldControllers[columnName] = fc
             fc.set(this.entity[columnName])
             Object.defineProperty(this.entity, columnName, fc)

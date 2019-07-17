@@ -1,8 +1,7 @@
 import { Dialect } from "./Dialect";
 import { EntityController } from "./EntityController";
-import { FieldController } from "./FieldController";
+import { FieldController } from "./FieldControllers/FieldController";
 import { EntityMetadata } from "./EntityMetadata";
-import { IFieldControllerConfig } from "./d";
 
 export abstract class Schema {
     //
