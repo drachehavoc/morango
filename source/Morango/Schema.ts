@@ -63,7 +63,7 @@ export abstract class Schema {
 
     abstract dialect: Dialect
 
-    protected getEntityFrom<T>(
+    protected getEntityClass<T>(
         BaseClass: new (...args: any) => T
     ): IEntity<T> {
         let schema = this
