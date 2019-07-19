@@ -62,14 +62,42 @@ export abstract class Schema {
     //
 
     abstract dialect: Dialect
+    protected _Dialect!: typeof Dialect
+    protected _entityClasses: Map<Clazz, IEntity<any>> = new Map()
+    protected _ddl: string = ''
 
     protected getEntityClass<T>(
         BaseClass: new (...args: any) => T
     ): IEntity<T> {
+        if (this._entityClasses.has(BaseClass))
+            return <IEntity<T>>this._entityClasses.get(BaseClass)
         let schema = this
         let metaEntity = MetaEntity.get(BaseClass)
-        return class extends (<any>BaseClass) {
+        let ClassEntity = class extends (<any>BaseClass) {
             Entity = new EntityController(schema, metaEntity, this)
+            // @ts-ignore
+            static get name() {
+                return `Entity_${BaseClass.name}`
+            }
         } as IEntity<T>
+        this._entityClasses.set(BaseClass, ClassEntity)
+        return ClassEntity
+    }
+
+    get Dialect(
+    ): typeof Dialect {
+        if (this._Dialect)
+            return this._Dialect
+        return this._Dialect = <typeof Dialect>this.dialect.constructor
+    }
+
+    get entityClasses() {
+        return this._entityClasses
+    }
+
+    get ddl() {
+        if (this._ddl)
+            return this._ddl
+        return this._ddl = this.Dialect.getDDL(this)
     }
 }
