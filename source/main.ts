@@ -1,12 +1,11 @@
-import { PessoaDoida } from "./Models/PessoaDoida";
-import { Dialect } from "./Morango/Dialect";
+import { Pessoa } from "./Models/Pessoa";
 import { Schema } from "./Morango/Schema";
+import { Dialect } from "./Morango/Dialect";
 
-export const schema = new class extends Schema {
-    readonly dialect = new Dialect()
-    Pessoa = this.getEntityClass(PessoaDoida)
+
+let schema = new class extends Schema {
+    dialect = new Dialect()
+    Pessoa = this.getEntityFrom(Pessoa)
 }
 
-let pessoa = new schema.Pessoa();
-
-schema.ddl
+let x = new schema.Pessoa()

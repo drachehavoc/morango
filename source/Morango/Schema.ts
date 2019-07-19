@@ -1,27 +1,59 @@
-import { Dialect } from "./Dialect";
+import { Clazz, IMetaFieldControllerParameters, IEntity } from "./d";
+import { MetaEntity } from "./MetaEntity";
 import { EntityController } from "./EntityController";
-import { FieldController } from "./FieldControllers/FieldController";
-import { EntityMetadata } from "./EntityMetadata";
+import { Dialect } from "./Dialect";
 
 export abstract class Schema {
     //
     // STATIC
     //
 
-    static entity(): ClassDecorator {
-        return Clazz => {
-
+    static key(
+    ): PropertyDecorator {
+        return (c, k) => {
+            let BaseClass = c.constructor as Clazz
+            let fieldName = k as string
+            let metaEntity = MetaEntity.get(BaseClass)
+            metaEntity.addKey(fieldName)
         }
     }
 
     static field(
-        fcConstructor: typeof FieldController
+        fieldControllerConstructorName: string,
+        fieldControllerParameters: IMetaFieldControllerParameters = {}
     ): PropertyDecorator {
         return (c, k) => {
-            let Clazz = c.constructor
+            let BaseClass = c.constructor as Clazz
             let fieldName = k as string
-            let metadata = EntityMetadata.get(Clazz)
-            metadata.addColumnMeta(fieldName, fcConstructor)
+            let metaEntity = MetaEntity.get(BaseClass)
+            metaEntity.addColumn(
+                BaseClass,
+                fieldName,
+                fieldControllerConstructorName,
+                fieldControllerParameters
+            )
+        }
+    }
+
+    static foreign(
+        TargetClass: Clazz
+    ): PropertyDecorator {
+        return (c, k) => {
+            let BaseClass = c.constructor as Clazz
+            let fieldName = k as string
+            let metaEntity = MetaEntity.get(BaseClass)
+            metaEntity.addForeign(fieldName, TargetClass)
+        }
+    }
+
+    static link(
+        TargetClass: Clazz
+    ): PropertyDecorator {
+        return (c, k) => {
+            let BaseClass = c.constructor as Clazz
+            let fieldName = k as string
+            let metaEntity = MetaEntity.get(BaseClass)
+            metaEntity.addLink(fieldName, TargetClass)
         }
     }
 
@@ -29,33 +61,15 @@ export abstract class Schema {
     // INSTANCE
     //
 
-    readonly abstract dialect: Dialect
-    protected entitiesMetadata: Set<EntityMetadata> = new Set()
+    abstract dialect: Dialect
 
-    get ddl() {
-        return this.dialect.ddl(this.entitiesMetadata)
-    }
-
-    getEntityClass<T extends Object>(Clazz: { new(...args: any): T }) {
+    protected getEntityFrom<T>(
+        BaseClass: new (...args: any) => T
+    ): IEntity<T> {
         let schema = this
-        let BaseClass = Clazz as any
-
-        class FormedEntityClass extends BaseClass {
-            entity = new EntityController(
-                schema,
-                BaseClass,
-                this
-            )
-        }
-
-        this.entitiesMetadata.add(EntityMetadata.get(Clazz))
-
-        // TODO: descobrir uma maneira de fazer com que o construtor da classe 
-        //       retornada receba os mesmos parametros da classe base
-        return <unknown>FormedEntityClass as {
-            new(...args: any): T & {
-                entity: EntityController
-            }
-        }
+        let metaEntity = MetaEntity.get(BaseClass)
+        return class extends (<any>BaseClass) {
+            Entity = new EntityController(schema, metaEntity, this)
+        } as IEntity<T>
     }
 }

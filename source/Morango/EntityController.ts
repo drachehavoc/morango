@@ -1,40 +1,31 @@
+import { placeholder, IFieldControllers } from "./d";
 import { Schema } from "./Schema";
-import { EntityMetadata } from "./EntityMetadata";
-import { FieldController } from "./FieldControllers/FieldController";
+import { MetaEntity } from "./MetaEntity";
+import { FieldController } from "./FieldController";
+import { Dialect } from "./Dialect";
 
-/**
- * Responsavel por manipular entidades instanciadas, a fim de permitir salvar,
- * alterar e deletar entidades, além de controlar os dados das colunas definidas
- * com FildControllers.
- * 
- */
 export class EntityController {
-    readonly metadata: EntityMetadata = EntityMetadata.get(this.BaseClass)
-    protected fieldControllers: { [fieldName: string]: FieldController } = {}
-
-    /**
-     * 
-     * @param schema 
-     * @param BaseClass 
-     * @param entity 
-     */
     constructor(
         readonly schema: Schema,
-        readonly BaseClass: new (...args: any) => any,
-        readonly entity: any
+        readonly metaEntity: MetaEntity,
+        readonly entity: placeholder
     ) {
-        this.instantiateFieldControllers()
+        console.log(this.fieldControllers)
     }
 
-    /**
-     * 
-     */
-    private instantiateFieldControllers() {
-        Object.entries(this.metadata.columns).forEach(([columnName, FieldControllerConstructor]) => {
-            let fc = new FieldControllerConstructor(columnName, this)
-            this.fieldControllers[columnName] = fc
-            fc.set(this.entity[columnName])
-            Object.defineProperty(this.entity, columnName, fc)
+    readonly dialect = this.schema.dialect
+    readonly Dialect = this.dialect.constructor as typeof Dialect
+    readonly BaseClass = this.metaEntity.BaseClass
+    readonly fieldControllers = this.instanceFieldControllers()
+
+    private instanceFieldControllers(
+
+    ): IFieldControllers {
+        let list: IFieldControllers = {}
+        Object.values(this.metaEntity.columns).forEach(metaFC => {
+            list[metaFC.fieldName]
+                = this.Dialect.getFieldController(metaFC)
         })
+        return list
     }
 }
