@@ -17,7 +17,6 @@ export class EntityController {
     readonly fieldControllers = this.instanceFieldControllers()
 
     private instanceFieldControllers(
-
     ): IFieldControllers {
         let list: IFieldControllers = {}
         Object.values(this.metaEntity.columns).forEach(metaFC => {
