@@ -1,0 +1,1 @@
+- [ ] Melhorar a forma que os parâmetros são passados para os FieldController, a sugestão é a criação de classe customizadas para cada parâmetros diferentes e estes serem injetados no Dialect ao qual ele pertence.
