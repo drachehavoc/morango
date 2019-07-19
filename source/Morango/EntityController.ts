@@ -9,9 +9,7 @@ export class EntityController {
         readonly schema: Schema,
         readonly metaEntity: MetaEntity,
         readonly entity: placeholder
-    ) {
-        console.log(this.fieldControllers)
-    }
+    ) { }
 
     readonly dialect = this.schema.dialect
     readonly Dialect = this.dialect.constructor as typeof Dialect
