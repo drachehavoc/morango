@@ -28,7 +28,7 @@ export class FieldController {
     //
     // INSTANCE
     //
-    
+
     protected parameters: IMetaFieldControllerParameters
 
     constructor(
@@ -36,7 +36,6 @@ export class FieldController {
     ) { 
         let Self = this.constructor as typeof FieldController
         this.parameters = Self.composeParameters(meta.fieldControllerParameters)
-        console.log(this.parameters)
     }
 
     protected name = this.meta.fieldName
