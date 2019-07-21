@@ -1,6 +1,6 @@
 import { IMetaFieldController, IMetaFieldControllerParameters } from "./d";
 
-export class FieldController {
+export class FieldController implements PropertyDescriptor {
     //
     // STATIC
     //
@@ -20,7 +20,7 @@ export class FieldController {
     ): IMetaFieldControllerParameters {
         return {
             ... this.defaultParameters,
-            ... custom,
+            ...custom,
             ... this.constantParameters
         }
     }
@@ -29,14 +29,27 @@ export class FieldController {
     // INSTANCE
     //
 
+    protected rawValue: any = null
     protected parameters: IMetaFieldControllerParameters
+    // protected name = this.meta.fieldName
 
     constructor(
         protected meta: IMetaFieldController
-    ) { 
+    ) {
         let Self = this.constructor as typeof FieldController
         this.parameters = Self.composeParameters(meta.fieldControllerParameters)
     }
 
-    protected name = this.meta.fieldName
+    get(
+    ): any {
+        console.log('pegou ' + this.rawValue)
+        return this.rawValue
+    }
+
+    set(
+        v: any
+    ): void {
+        console.log('setou ' + v)
+        this.rawValue = v
+    }
 }

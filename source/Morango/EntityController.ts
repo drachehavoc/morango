@@ -20,9 +20,16 @@ export class EntityController {
     ): IFieldControllers {
         let list: IFieldControllers = {}
         Object.values(this.metaEntity.columns).forEach(metaFC => {
-            list[metaFC.fieldName]
-                = this.Dialect.getFieldController(metaFC)
+            let fc = this.Dialect.getFieldController(metaFC)
+            list[metaFC.fieldName] = fc
+            fc.set(this.entity[metaFC.fieldName])
+            Object.defineProperty(this.entity, metaFC.fieldName, fc)
         })
         return list
+    }
+
+    save(
+    ): void {
+
     }
 }
