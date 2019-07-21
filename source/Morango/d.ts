@@ -16,7 +16,7 @@ export declare interface IFieldControllersConstructors {
 }
 
 export declare interface IMetaFieldControllerParameters {
-    nil?: boolean
+    nullable?: boolean
     type?: string
     size?: any
     serial?: boolean
