@@ -70,7 +70,7 @@ export class MetaEntity {
         fieldName: string,
         TargetClass: Clazz
     ): void {
-        this._foreigns[fieldName] = {
+        this._links[fieldName] = {
             fieldName,
             TargetClass
         }
