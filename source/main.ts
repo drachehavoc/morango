@@ -14,6 +14,7 @@ let schema = new class extends Schema {
 let x = new schema.Pessoa()
 
 x.nome = 'Daniel'
+x.telefone = new schema.Telefone()
 
 console.log(x.nome)
 

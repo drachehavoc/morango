@@ -3,6 +3,7 @@ import { FieldController } from "./FieldController";
 import { Schema } from "./Schema";
 import { MetaEntity } from "./MetaEntity";
 import { decamelize } from "./util";
+import { EntityController } from "./EntityController";
 
 export class Dialect {
     //
@@ -40,7 +41,7 @@ export class Dialect {
         let FC = this.getFieldControllerConstructor(meta.fieldControllerConstructorName)
         let cnf = FC.composeParameters(meta.fieldControllerParameters)
         let col = prefix || decamelize(`${meta.fieldName}`)
-        let nil = cnf.nil === true ? '' : ' NOT NULL'
+        let nil = cnf.nullable === true ? '' : ' NOT NULL'
         let type = cnf.type ? cnf.type.toUpperCase() : 'VARCHAR'
         let size = cnf.size ? `(${cnf.size})` : ''
         let serial = cnf.serial ? ' AUTOINCREMENT' : ''
@@ -90,10 +91,56 @@ export class Dialect {
         schema: Schema
     ): string {
         let databaseEntries: string[] = []
-        schema
-            .entityClasses
-            .forEach((EntityClass, BaseClass) =>
-                databaseEntries.push(this.getDdlTable(BaseClass)))
+        schema.entityClasses.forEach((EntityClass, BaseClass) => databaseEntries.push(this.getDdlTable(BaseClass)))
         return databaseEntries.join(`\n\n`)
+    }
+
+    static async saveEntity(
+        entityController: EntityController
+    ): Promise<boolean> {
+        let fieldsAndValues: { [fildName: string]: string } = {}
+        let entity = entityController.entity
+        let fieldsErrors: string[] = []
+
+        Object.entries(entityController.fieldControllers).forEach(([k, fc]) => {
+            try {
+                fieldsAndValues[decamelize(k)] = fc.getToDb()
+            } catch (e) {
+                fieldsErrors.push(e)
+            }
+        })
+
+        try {
+            await Promise.all(
+                Object.entries(entityController.metaEntity.foreigns).map(async ([k, meta]) => {
+                    let targetMeta = MetaEntity.get(meta.TargetClass)
+                    let targetEntity = entity[k]
+                    let targetFieldControllers = targetEntity.Entity.fieldControllers
+
+                    if (targetEntity.Entity.isModified)
+                        await targetEntity.Entity.save()
+
+                    targetMeta.keys.forEach(key => {
+                        let fieldMetaTarget = targetMeta.columns[key]
+                        let fieldName = decamelize(`${meta.fieldName}__${fieldMetaTarget.BaseClass.name}_${key}`)
+                        fieldsAndValues[fieldName] = targetFieldControllers[key].getToDb()
+                    })
+                })
+            )
+        } catch(e) {
+            fieldsErrors.push(e)
+        }
+
+        if (fieldsErrors.length)
+            throw fieldsErrors.join('; ')
+
+        let rFields = Object.keys(fieldsAndValues)
+        let fields = rFields.join(', ')
+        let placeholders = Array(rFields.length).fill('?').join(', ')
+
+        console.log(`INSERT INTO ${decamelize(entityController.BaseClass.name)}(${fields}) VALUES(${placeholders})`)
+        console.log(Object.values(fieldsAndValues))
+
+        return true
     }
 }

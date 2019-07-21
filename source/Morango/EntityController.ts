@@ -1,10 +1,11 @@
 import { placeholder, IFieldControllers } from "./d";
 import { Schema } from "./Schema";
 import { MetaEntity } from "./MetaEntity";
-import { FieldController } from "./FieldController";
 import { Dialect } from "./Dialect";
 
 export class EntityController {
+    protected _modified = true
+
     constructor(
         readonly schema: Schema,
         readonly metaEntity: MetaEntity,
@@ -28,8 +29,13 @@ export class EntityController {
         return list
     }
 
-    save(
-    ): void {
+    get isModified() {
+        return this._modified
+    }
 
+    async save(
+    ): Promise<boolean> {
+        this._modified = await this.Dialect.saveEntity(this)
+        return this._modified
     }
 }
