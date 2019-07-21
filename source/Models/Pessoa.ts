@@ -11,4 +11,10 @@ export class Pessoa {
 
     @Schema.foreign(Telefone)
     telefone?: Telefone
+
+    @Schema.foreign(Pessoa)
+    pessoa?: Pessoa
+
+    @Schema.foreign(Pessoa)
+    pessoaZika?: Pessoa
 }

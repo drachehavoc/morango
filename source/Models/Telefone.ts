@@ -6,6 +6,10 @@ export class Telefone {
     @Schema.field("FieldController", {})
     id: number = 1
 
+    @Schema.key()
+    @Schema.field("FieldController", {})
+    id2: number = 1
+
     @Schema.link(Pessoa)
     pessoa?: Pessoa
 }
