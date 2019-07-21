@@ -13,4 +13,8 @@ let schema = new class extends Schema {
 
 let x = new schema.Pessoa()
 
-console.log(schema.ddl)
+x.nome = 'Daniel'
+
+console.log(x.nome)
+
+x.Entity.save()
