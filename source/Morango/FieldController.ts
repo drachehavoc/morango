@@ -6,7 +6,7 @@ export class FieldController implements PropertyDescriptor {
     //
 
     static readonly defaultParameters: Partial<IMetaFieldControllerParameters> = Object.freeze({
-        nil: true,
+        nullable: true,
         type: 'varchar',
         size: '255',
         serial: false,

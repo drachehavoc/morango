@@ -35,7 +35,7 @@ export class EntityController {
 
     async save(
     ): Promise<boolean> {
-        this._modified = await this.Dialect.saveEntity(this)
+        this._modified = await this.dialect.saveEntity(this)
         return this._modified
     }
 }

@@ -1,9 +1,10 @@
-import { IMetaFieldController, IFieldControllersConstructors, Clazz } from "./d";
+import { IMetaFieldController, IFieldControllersConstructors, Clazz, IEntity } from "./d";
 import { FieldController } from "./FieldController";
 import { Schema } from "./Schema";
 import { MetaEntity } from "./MetaEntity";
 import { decamelize } from "./util";
 import { EntityController } from "./EntityController";
+import maria, { ConnectionConfig } from "mariadb"
 
 export class Dialect {
     //
@@ -87,17 +88,20 @@ export class Dialect {
         return `CREATE TABLE IF NOT EXISTS ${tableName}(\n  ${composition.join(',\n  ')}\n);`
     }
 
-    static getDDL(
+    static getDdl(
         schema: Schema
-    ): string {
+    ): string[] {
         let databaseEntries: string[] = []
         schema.entityClasses.forEach((EntityClass, BaseClass) => databaseEntries.push(this.getDdlTable(BaseClass)))
-        return databaseEntries.join(`\n\n`)
+        return databaseEntries
     }
 
     static async saveEntity(
         entityController: EntityController
-    ): Promise<boolean> {
+    ): Promise<{
+        query: string,
+        values: string[]
+    }> {
         let fieldsAndValues: { [fildName: string]: string } = {}
         let entity = entityController.entity
         let fieldsErrors: string[] = []
@@ -127,7 +131,7 @@ export class Dialect {
                     })
                 })
             )
-        } catch(e) {
+        } catch (e) {
             fieldsErrors.push(e)
         }
 
@@ -136,11 +140,52 @@ export class Dialect {
 
         let rFields = Object.keys(fieldsAndValues)
         let fields = rFields.join(', ')
+        let values = Object.values(fieldsAndValues)
         let placeholders = Array(rFields.length).fill('?').join(', ')
+        let query = `INSERT INTO ${decamelize(entityController.BaseClass.name)}(${fields}) VALUES(${placeholders})`
 
-        console.log(`INSERT INTO ${decamelize(entityController.BaseClass.name)}(${fields}) VALUES(${placeholders})`)
-        console.log(Object.values(fieldsAndValues))
+        return { query, values }
+    }
 
-        return true
+    //
+    // INSTANCE
+    //
+
+    protected Self = this.constructor as typeof Dialect
+    protected connection = maria.createConnection(this.connectionOptions)
+
+    constructor(
+        protected connectionOptions: ConnectionConfig
+    ) {
+        // this.connection.connect(err => {
+        //     if (err) throw `error connecting: ${err.stack}`
+        //     console.log('connected as id ' + this.connection.threadId);
+        // })
+    }
+
+    async syncSchema(
+        schema: Schema
+    ): Promise<boolean> {
+        let connection = await this.connection;
+        await connection.query(`SET FOREIGN_KEY_CHECKS=0;`)
+        await Promise.all(
+            this.Self.getDdl(schema).map(sql => {
+                let action = connection.query(sql)
+                // action.then(x => console.log(x, sql))
+                return action
+            })
+        )
+        await connection.query(`SET FOREIGN_KEY_CHECKS=1;`)
+        return true;
+    }
+
+    async saveEntity(
+        entityController: EntityController
+    ): Promise<boolean> {
+        let connection = await this.connection
+        let { query, values } = await this.Self.saveEntity(entityController)
+        let res = await connection.query(query, values)
+        console.log(res)
+        return true;
     }
 }

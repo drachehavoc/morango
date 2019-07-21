@@ -64,7 +64,6 @@ export abstract class Schema {
     abstract dialect: Dialect
     protected _Dialect!: typeof Dialect
     protected _entityClasses: Map<Clazz, IEntity<any>> = new Map()
-    protected _ddl: string = ''
 
     protected getEntityClass<T>(
         BaseClass: new (...args: any) => T
@@ -84,8 +83,7 @@ export abstract class Schema {
         return ClassEntity
     }
 
-    get Dialect(
-    ): typeof Dialect {
+    get Dialect(): typeof Dialect {
         if (this._Dialect)
             return this._Dialect
         return this._Dialect = <typeof Dialect>this.dialect.constructor
@@ -95,9 +93,7 @@ export abstract class Schema {
         return this._entityClasses
     }
 
-    get ddl() {
-        if (this._ddl)
-            return this._ddl
-        return this._ddl = this.Dialect.getDDL(this)
+    get ddl(): Promise<boolean> {
+        return this.dialect.syncSchema(this)
     }
 }
